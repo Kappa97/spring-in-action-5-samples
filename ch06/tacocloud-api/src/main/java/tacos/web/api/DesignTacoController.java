@@ -49,13 +49,28 @@ public class DesignTacoController {
     return "My String";
   }
 
+//  @GetMapping("/recent")
+//  public Iterable<Taco> recentTacos() {                 //<3>
+//    PageRequest page = PageRequest.of(
+//            0, 12, Sort.by("createdAt").descending());
+//    return tacoRepo.findAll(page).getContent();
+//  }
+
+
   @GetMapping("/recent")
-  public Iterable<Taco> recentTacos() {                 //<3>
+  public Resources<TacoResource> recentTacos() {
     PageRequest page = PageRequest.of(
             0, 12, Sort.by("createdAt").descending());
-    return tacoRepo.findAll(page).getContent();
+    List<Taco> tacos = tacoRepo.findAll(page).getContent();
+    List<TacoResource> tacoResources =
+            new TacoResourceAssembler().toResources(tacos);
+    Resources<TacoResource> recentResources =
+            new Resources<TacoResource>(tacoResources);
+    recentResources.add(
+            linkTo(methodOn(DesignTacoController.class).recentTacos())
+                    .withRel("recents"));
+    return recentResources;
   }
-
 
   //end::recents[]
 
